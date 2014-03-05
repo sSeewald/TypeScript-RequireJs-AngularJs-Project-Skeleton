@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/default.css"/>
+</head>
+<body>
+<div ng-controller="app.controller.simpleController">
+    {{vm.message}}
+
+    <div class="simple-class-directive"></div>
+
+    <div simple-attr-directive="" delegated-click="customMethod('Button clicked')"></div>
+
+    <simple-element-directive></simple-element-directive>
+
+    <!-- directive: simple-comment-directive -->
+
+    <div class="simple-transclusion-directive">Default Content</div>
+
+</div>
+<script data-main="js/bootstrap" type="text/javascript" src="js/lib/require.js"></script>
+</body>
+</html>
