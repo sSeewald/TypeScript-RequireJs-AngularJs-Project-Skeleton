@@ -2,10 +2,9 @@ module.exports = function (grunt) {
     "use strict";
 
     grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
         ts: {
-            // use to override the default options, See: http://gruntjs.com/configuring-tasks#options
-            // these are the default options to the typescript compiler for grunt-ts:
-            // see `tsc --help` for a list of supported options.
+
             options: {
                 compile: true,                 // perform compilation. [true (default) | false]
                 comments: false,               // same as !removeComments. [true | false (default)]
@@ -16,22 +15,23 @@ module.exports = function (grunt) {
                 mapRoot: '',                   // where to locate .map.js files. [(default) '' == generated js location.]
                 declaration: false             // generate a declaration .d.ts file for every output js file. [true | false (default)]
             },
-            // a particular target
+
+            // compile all typescript files
             app: {
-                src: ["ts/**/*.ts", "!ts/bootstrap.ts", "!ts/_*/**/*"],          // The source typescript files, http://gruntjs.com/configuring-tasks#files
-                reference: 'ts/_references.ts', // If specified, generate this file that you can use for your reference management
-                out: '../js/app.js',              // If specified, watches this directory for changes, and re-runs the current target
-                // use to override the grunt-ts project options above for this target
-                options: {
-                    module: 'amd'
-                }
+                src: ["ts/**/*.ts", "!ts/bootstrap.ts", "!ts/_*/**/*"],
+                reference: 'ts/_references.ts',
+                out: '../js/app.js'
             },
-            // a particular target
+
+            // An extra task for the bootstrap file (requirejs config) because it won't change much
             boot: {
-                src: ["ts/bootstrap.ts"],          // The source typescript files, http://gruntjs.com/configuring-tasks#files
-                out: '../js/bootstrap.js'              // If specified, watches this directory for changes, and re-runs the current target
+                src: ["ts/bootstrap.ts"],
+                out: '../js/bootstrap.js'
             }
+
         },
+
+        // wrap app to use it as an AMD module with requirejs
         concat: {
             options: {},
             dist: {
@@ -40,24 +40,90 @@ module.exports = function (grunt) {
                     '../js/app.js',
                     'build/end.js'
                 ],
-                dest: '../js/App.js'
+                dest: '../js/app.js'
             }
         },
+
+        sass: {
+            dist: {
+                files: {
+                    '../css/default.css': 'css/default.scss'
+                }
+            }
+        },
+
+        // minimize task
         uglify: {
-            static_mappings: {
+            app: {
                 files: [
                     {
-                        src: '../js/app.js', dest: '../js/app.min.js'
+                        expand: true,
+                        cwd: "../js",
+                        src: ["*.js", "!*.min.js"],
+                        dest: "../js",
+                        ext: ".min.js"
+                    }
+                ]
+            },
+            lib: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'lib/',
+                        src: '**/*.js',
+                        dest: '../js/lib',
+                        flatten: true // see http://gruntjs.com/api/grunt.file#grunt.file.expandmapping
                     }
                 ]
             }
+
+        },
+
+        cssmin: {
+            minify: {
+                expand: true,
+                cwd: '../css',
+                src: ['*.css', '!*.min.css'],
+                dest: '../css',
+                ext: '.min.css'
+            }
         }
+        //,
+        // use grunt watch if your IDE or Editor has no support for watching for changes
+        // watch: {
+        //    ts: {
+        //        files: ["ts/**/*.ts", "!ts/_references.ts"],
+        //        tasks: ["ts:boot", "ts:app", "concat", "uglifyJs"]
+        //
+        //    },
+        //    lib: {
+        //        files: ["lib/**/*.js"],
+        //        tasks: ["uglifyJs:lib"]
+        //
+        //    },
+        //    sass: {
+        //        files: ["css/**/*.{scss,sass}"],
+        //        tasks: ["sass:dist"]
+        //    }
+        //    ...
+        // }
+
     });
 
     grunt.loadNpmTasks("grunt-ts");
+    grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-contrib-uglify");
-    grunt.registerTask("default", ["ts:boot", "ts:app", "concat"]);
-    grunt.registerTask("cleanDev", ["uglify"]);
+    grunt.loadNpmTasks("grunt-contrib-cssmin");
+
+    grunt.registerTask("compileApp", ["ts:boot", "ts:app", "concat"]);
+
+    grunt.registerTask("compileCss", ["sass:dist", "cssmin:minify"]);
+
+    grunt.registerTask("uglifyJs", ["uglify:lib", "uglify:app"]);
+
+
+    //grunt.loadNpmTasks('grunt-contrib-watch');
+    //grunt.registerTask("watch", [... , "watch"]);
 
 }
