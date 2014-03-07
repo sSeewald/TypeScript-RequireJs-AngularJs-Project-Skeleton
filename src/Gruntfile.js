@@ -89,7 +89,7 @@ module.exports = function (grunt) {
             }
         }
         //,
-        // use grunt watch if your IDE or Editor has no support for watching for changes
+        // use grunt watch if your IDE or Editor has no support watching for changes
         // watch: {
         //    ts: {
         //        files: ["ts/**/*.ts", "!ts/_references.ts"],
@@ -116,7 +116,17 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-cssmin");
 
-    grunt.registerTask("compileApp", ["ts:boot", "ts:app", "concat"]);
+
+    // Define a custom async task to ensure that app.js is written before concat adds banner and footer
+    grunt.registerTask('tsAsync', 'Compiles typescript', function () {
+        var done = this.async();
+        grunt.util.spawn({ cmd: 'grunt', args: ['ts:app'] }, function (e, result) {
+            grunt.log.writeln(result);
+            done();
+        });
+    });
+
+    grunt.registerTask("compileApp", ["ts:boot", "tsAsync", "concat"]);
 
     grunt.registerTask("compileCss", ["sass:dist", "cssmin:minify"]);
 
