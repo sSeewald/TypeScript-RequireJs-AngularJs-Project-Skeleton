@@ -1,26 +1,32 @@
 requirejs.config({
-    baseUrl: '/js',
+    baseUrl: 'js',
     paths: {
-        lib: ['lib']
+        lib: ['lib'],
+        app: ['app']
     },
     urlArgs: "dev=" + (new Date()).getTime(),
     shim: {
         "lib/angular": {
-            exports: "lib/angular"
+            exports: "angular"
+        },
+        "app": {
+            deps: ['lib/qwery', 'lib/angular', 'lib/angular-route', 'lib/angular-qwery']
         },
         "lib/angular-route": {
             deps: ["lib/angular"]
         },
-        "app": {
-            deps: ["lib/angular"]
+        "lib/angular-qwery": {
+            deps: ["lib/qwery", "lib/angular"]
         }
     }
 });
 
-requirejs(['app', 'lib/angular', 'lib/angular-route'], function (o) {
-    var App = window['app'] = window['app'] || o.app;
+requirejs(['lib/qwery', 'app'], function (qwery) {
+    window['qwery'] = qwery;
 
-    App.Init();
+    window['app'] = window['app'] || ['app'];
+
+    window['app'].Init();
 
     angular.bootstrap(document, ['app']);
 });

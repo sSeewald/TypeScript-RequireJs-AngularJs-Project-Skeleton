@@ -1,6 +1,3 @@
-define(["require", "exports"], function(require, exports) {
-
-
 var app;
 (function (app) {
     angular.module('app.controller', []);
@@ -50,7 +47,7 @@ var app;
             if (typeof services === "undefined") { services = []; }
             var directive = className[0].toLowerCase() + className.slice(1);
             services.push(function () {
-                return new app.directive[className]();
+                return newInstanceFactory(app.directive[className], arguments);
             });
             angular.module('app.directive').directive(directive, services);
             return app.register;
@@ -61,12 +58,23 @@ var app;
             if (typeof services === "undefined") { services = []; }
             var service = className[0].toLowerCase() + className.slice(1);
             services.push(function () {
-                return new app.service[className]();
+                return newInstanceFactory(app.service[className], arguments);
             });
             angular.module('app.service').factory(service, services);
             return app.register;
         }
         register.service = service;
+
+        var newInstanceFactory = (function () {
+            var tmpO = function () {
+            };
+            return function (o, args) {
+                tmpO.prototype = o.prototype;
+                var instance = new tmpO();
+                o.prototype.constructor.apply(instance, args);
+                return instance;
+            };
+        })();
     })(app.register || (app.register = {}));
     var register = app.register;
 })(app || (app = {}));
@@ -171,7 +179,8 @@ var app;
 (function (app) {
     (function (service) {
         var simpleService = (function () {
-            function simpleService() {
+            function simpleService($window) {
+                console.log('Dependency injection without static $inject or factory method: ' + $window);
                 this.simpleString = "I'am A Service";
             }
             simpleService.prototype.simpleMethod = function () {
@@ -194,11 +203,12 @@ var app;
     var service = app.service;
 })(app || (app = {}));
 
-app.register.service('simpleService', []);
+app.register.service('simpleService', ["$window"]);
+'use strict';
 var app;
 (function (app) {
     function Init() {
-        var ngModules = ['ngRoute'];
+        var ngModules = ['ngRoute', 'nQwery'];
 
         var modules = ['app.controller', 'app.directive', 'app.filter', 'app.service'];
 
@@ -207,7 +217,3 @@ var app;
     app.Init = Init;
 })(app || (app = {}));
 //# sourceMappingURL=app.js.map
-
-    define("app", function(){});
-    exports.app = app || {};
-});
