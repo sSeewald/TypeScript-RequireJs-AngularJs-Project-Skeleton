@@ -38,20 +38,34 @@ module app {
 
         export function directive(className:string, services = []) {
             var directive = className[0].toLowerCase() + className.slice(1);
-            services.push(() => new app.directive[className]());
+            services.push(():IDirective => {
+                return newInstanceFactory(app.directive[className], arguments);
+            });
             angular.module('app.directive').directive(directive, services);
             return app.register;
         }
 
         export function service(className:string, services = []) {
             var service = className[0].toLowerCase() + className.slice(1);
-            services.push(() =>
-                    new app.service[className]()
+            services.push(():IService => {
+                    return newInstanceFactory(app.service[className], arguments);
+                }
             );
             angular.module('app.service').factory(service, services);
             return app.register;
 
         }
+
+        var newInstanceFactory = (() => {
+            var tmpO = () => {
+            };
+            return function (o, args) {
+                tmpO.prototype = o.prototype;
+                var instance = new tmpO();
+                o.prototype.constructor.apply(instance, args);
+                return instance;
+            }
+        })();
 
 
     }

@@ -6,7 +6,8 @@ module app.service {
 
         private simpleString:string;
 
-        constructor() {
+        constructor($window) {
+            console.log('Dependency injection without static $inject or factory method: ' + $window);
             this.simpleString = "I'am A Service";
         }
 
@@ -31,5 +32,5 @@ module app.service {
 
 }
 
-app.register.service('simpleService',[]);
+app.register.service('simpleService',["$window"]);
 

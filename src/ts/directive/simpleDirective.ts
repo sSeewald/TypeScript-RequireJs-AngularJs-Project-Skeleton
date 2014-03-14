@@ -69,7 +69,6 @@ module app.directive {
          */
             link($scope, element:ng.IAugmentedJQuery, attributes:ng.IAttributes) {
 
-            //element.text('this is the MyDirective directive');
         }
     }
     export class simpleCommentDirective implements IDirective {

@@ -14,13 +14,15 @@ module.exports = function (grunt) {
                 sourceRoot: '',                // where to locate TypeScript files. [(default) '' == source ts location]
                 mapRoot: '',                   // where to locate .map.js files. [(default) '' == generated js location.]
                 declaration: false             // generate a declaration .d.ts file for every output js file. [true | false (default)]
+
             },
 
             // compile all typescript files
             app: {
                 src: ["ts/**/*.ts", "!ts/bootstrap.ts", "!ts/_*/**/*"],
                 reference: 'ts/_references.ts',
-                out: '../js/app.js'
+                out: '../js/app.js',
+                amdloader:'../js/blub.js'
             },
 
             // An extra task for the bootstrap file (requirejs config) because it won't change much
@@ -126,7 +128,9 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask("compileApp", ["ts:boot", "tsAsync", "concat"]);
+    //grunt.registerTask("compileApp", ["ts:boot", "tsAsync", "concat"]);
+
+    grunt.registerTask("compileApp", ["ts:boot", "ts:app"]);
 
     grunt.registerTask("compileCss", ["sass:dist", "cssmin:minify"]);
 
