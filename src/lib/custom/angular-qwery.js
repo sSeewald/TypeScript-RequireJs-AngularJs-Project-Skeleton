@@ -22,6 +22,20 @@
 
             var qwery = window.qwery;
 
+            angular[el] = function (selector) {
+
+                // The passed element is already an instance of angular._element.
+                if (selector instanceof angular[_el]) {
+                    return selector;
+                }
+                // A selector-string is passed - pass it through qwery.
+                if (typeof selector === 'string') {
+                    // If angular.element(selector) is called use the default context (document)
+                    return angular[_el](qwery(selector));
+                }
+                return angular[_el](selector);
+
+            };
 
             extJqLite.prototype['children'] = function (selector) {
 
@@ -29,9 +43,8 @@
                 if (selector instanceof angular[_el]) {
                     return angular[_el].children(selector);
                 }
-                // A selector-string is passed - pass it through qwery and return a angular.element dom collection.
+                // A selector-string is passed - pass it through qwery.
                 if (typeof selector === 'string') {
-                    //return [];
                     return angular[_el](qwery(selector, this));
                 }
                 return angular[_el](selector);
@@ -40,7 +53,7 @@
             extJqLite.prototype['find'] = function (selector) {
 
                 var elements = [],
-                    cIndex = 0,
+                    cIndex,
                     context,
                     elIndex = 0,
                     elLength,
